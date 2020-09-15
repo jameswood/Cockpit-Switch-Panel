@@ -1,0 +1,37 @@
+{
+    "build": {
+      "core": "arduino", 
+      "extra_flags": "-DARDUINO_AVR_MICRODUINO_CORE", 
+      "f_cpu": "16000000L", 
+      "hwids": [
+        [
+          "0x2341", 
+          "0x484C"
+        ]
+      ], 
+      "mcu": "atmega328p", 
+      "variant": "standard"
+    }, 
+    "frameworks": [
+      "arduino", 
+      "simba"
+    ], 
+    "fuses": {
+      "efuse": "0x05", 
+      "hfuse": "0xDE", 
+      "lfuse": "0xFF", 
+      "lock": "0x3F"
+    }, 
+    "name": "HoodLoader2 328p Uno", 
+    "upload": {
+      "maximum_ram_size": 2048, 
+      "maximum_size": 32256, 
+      "protocol": "arduino", 
+      "disable_flushing": true, 
+      "require_upload_port": true, 
+      "wait_for_upload_port": true, 
+      "speed": 115200
+    }, 
+    "url": "http://www.arduino.org/products/boards/4-arduino-boards/arduino-uno", 
+    "vendor": "Arduino"
+}

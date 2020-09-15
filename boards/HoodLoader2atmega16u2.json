@@ -1,0 +1,37 @@
+{
+    "build": {
+      "core": "arduino", 
+      "extra_flags": "-DARDUINO_ARCH_AVR -DARDUINO_AVR_HOODLOADER2 -DMAGIC_KEY_POS=(RAMEND-1) -DUSB_EP_SIZE=16", 
+      "f_cpu": "16000000L", 
+      "hwids": [
+        [
+          "0x2341", 
+          "0x484C"
+        ]
+      ], 
+      "mcu": "atmega16u2", 
+      "variant": "HoodLoader2"
+    }, 
+    "frameworks": [
+      "arduino", 
+      "simba"
+    ], 
+    "fuses": {
+      "efuse": "0xFC", 
+      "hfuse": "0xD8", 
+      "lfuse": "0xEF", 
+      "lock": "0x0F"
+    }, 
+    "name": "HoodLoader2 16u2 Uno", 
+    "upload": {
+      "maximum_ram_size": 512, 
+      "maximum_size": 12288, 
+      "protocol": "avr109", 
+      "disable_flushing": true, 
+      "require_upload_port": true, 
+      "wait_for_upload_port": true, 
+      "speed": 57600
+    }, 
+    "url": "http://www.arduino.org/products/boards/4-arduino-boards/arduino-uno", 
+    "vendor": "Arduino"
+}
