@@ -1,45 +1,55 @@
-#include <Wire.h>
-char controllerState[8];
-#define I2C_SLAVE_ADDR  0x07
+#include <EasyTransfer.h>
 
-const long throttle = 100;
-long lastSend=0;
+#define BUTTONS 16
+#define FAUXBUTTONS 5
 
-void setup(){
-  for (int pinNumber = 0; pinNumber < 14; pinNumber++) { pinMode(pinNumber, INPUT_PULLUP); }
-//  for (int pinNumber = 14; pinNumber <= 21; pinNumber++) { pinMode(pinNumber, INPUT); }
-  pinMode(0+14, INPUT);
-  Wire.begin();
-//  Serial.begin(115200);
+const long speedLimit = 10;
+
+unsigned long lastSend = 0;
+
+int buttonPins[BUTTONS] = { 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, A0, A1, A2, A3 };
+int analogButtonPin = A4;
+
+EasyTransfer ET; 
+
+struct SEND_DATA_STRUCTURE{
+  //THIS MUST BE EXACTLY THE SAME ON THE OTHER ARDUINO
+  int16_t joyx;
+  int16_t joyy;
+  int8_t joyz;
+  int16_t joyxr;
+  int16_t joyyr;
+  int8_t joyzr;
+  uint32_t buttonState;
+};
+
+SEND_DATA_STRUCTURE controllerState;
+
+void setup() {
+  Serial.begin(2000000);
+  ET.begin(details(controllerState), &Serial);
+  for (int i = 0; i < BUTTONS; i++) { pinMode(buttonPins[i], INPUT_PULLUP); }
+  pinMode(analogButtonPin, INPUT);
+}
+
+uint32_t readButtons(){
+  uint32_t buttonStateNow = 0;
+  for (int i=0; i<BUTTONS; i++) {
+    bitWrite(buttonStateNow, i, !digitalRead(buttonPins[i]));
+  }
+  int fauxButton = analogRead(analogButtonPin) / 205;
+  for (int i=0; i<FAUXBUTTONS; i++) {
+    bool buttonPressed = false;
+    fauxButton == i ? buttonPressed = true : buttonPressed = false;
+    bitWrite(buttonStateNow, i + BUTTONS, buttonPressed);
+  }
+  return buttonStateNow;
 }
 
 void loop(){
-  controllerState[0] = map(analogRead(14), 0, 1023, 0, 255);
-  controllerState[1] = 128; //map(analogRead(15), 0, 1023, 0, 255);
-  controllerState[2] = 128; //map(analogRead(16), 0, 1023, 0, 255);
-  controllerState[3] = 128; //map(analogRead(17), 0, 1023, 0, 255);
-  controllerState[4] = 128; //map(analogRead(20), 0, 1023, 0, 255);
-  controllerState[5] = 128; //map(analogRead(21), 0, 1023, 0, 255);
-  controllerState[6] = readButtons(8, 0);
-  controllerState[7] = readButtons(6, 8);
-  if ((millis() - lastSend) > throttle ) {
-    Wire.beginTransmission(I2C_SLAVE_ADDR);
-    for (int i=0; i<sizeof(controllerState); i++){
-      Wire.write(controllerState[i]);
-    }
-    Wire.endTransmission();
+  controllerState.buttonState = readButtons();
+  if ((millis() - lastSend) > speedLimit ) {
+    ET.sendData();
     lastSend = millis();
   }
-}
-
-byte readButtons(int numberOfButtonsToRead, int inputNumberOffset){
-  byte tempByte = 0;
-  for (int i=0; i<8; i++){
-    if (i < numberOfButtonsToRead) {
-      tempByte += (digitalRead(i + inputNumberOffset) << i);
-    } else {
-      tempByte += (1 << i);
-    }
-  }
-  return ~tempByte;
 }
